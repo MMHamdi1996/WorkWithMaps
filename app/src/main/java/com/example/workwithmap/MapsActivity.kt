@@ -10,6 +10,8 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.example.workwithmap.databinding.ActivityMapsBinding
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -41,8 +43,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap = googleMap
 
         // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        val tehran = LatLng(35.6685, 51.4480)
+        mMap
+            .addMarker(MarkerOptions()
+                .position(tehran)
+                .title("Marker in Tehran")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.location)))
+
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(tehran , 15f)
+            , 2000 , null)
     }
 }
