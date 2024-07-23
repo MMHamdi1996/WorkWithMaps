@@ -1,7 +1,11 @@
 package com.example.workwithmap
 
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -50,7 +54,51 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .title("Marker in Tehran")
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.location)))
 
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(tehran , 15f)
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(tehran , 25f)
             , 2000 , null)
+
+        if (permissionPass()){
+            Toast.makeText(this, "یه اتفاقی رخ داد", Toast.LENGTH_SHORT).show()        }
     }
+
+    private fun permissionPass(): Boolean {
+        val permissionsWeNeed = mutableListOf<String>()
+
+        val locationAccessPermission = ContextCompat.checkSelfPermission(
+            this, android.Manifest.permission.ACCESS_FINE_LOCATION
+        )
+
+        if (locationAccessPermission != PackageManager.PERMISSION_GRANTED) {
+            permissionsWeNeed.add(android.Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+        val coarseLocationPermission = ContextCompat.checkSelfPermission(
+            this, android.Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+
+        if (coarseLocationPermission != PackageManager.PERMISSION_GRANTED) {
+            permissionsWeNeed.add(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
+
+
+        if (permissionsWeNeed.isNotEmpty()) {
+            ActivityCompat.requestPermissions(
+                this, permissionsWeNeed.toTypedArray(), 5
+            )
+            return false
+        }
+        return true
+    }
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == 5)
+            Toast.makeText(this, "یه اتفاقی رخ داد", Toast.LENGTH_SHORT).show()
+    }
+
+
 }
