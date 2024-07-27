@@ -1,6 +1,11 @@
 package com.example.workwithmap
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -17,7 +22,7 @@ import com.example.workwithmap.databinding.ActivityMapsBinding
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, LocationListener {
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
@@ -43,22 +48,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+    @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        // Add a marker in Sydney and move the camera
-        val tehran = LatLng(35.6685, 51.4480)
+        if (permissionPass()) {
+            val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER , 1000 , 3f , this)
+        }
+    }
+    override fun onLocationChanged(location: Location) {
+        val driverLocation = LatLng(location.latitude, location.longitude)
         mMap
-            .addMarker(MarkerOptions()
-                .position(tehran)
-                .title("Marker in Tehran")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.location)))
+            .addMarker(
+                MarkerOptions()
+                    .position(driverLocation)
+                    .title("Driver location")
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.driver))
+            )
 
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(tehran , 25f)
-            , 2000 , null)
-
-        if (permissionPass()){
-            Toast.makeText(this, "یه اتفاقی رخ داد", Toast.LENGTH_SHORT).show()        }
+        mMap.animateCamera(
+            CameraUpdateFactory.newLatLngZoom(driverLocation, 25f), 2000, null
+        )
     }
 
     private fun permissionPass(): Boolean {
@@ -67,15 +78,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val locationAccessPermission = ContextCompat.checkSelfPermission(
             this, android.Manifest.permission.ACCESS_FINE_LOCATION
         )
-
         if (locationAccessPermission != PackageManager.PERMISSION_GRANTED) {
             permissionsWeNeed.add(android.Manifest.permission.ACCESS_FINE_LOCATION)
         }
-
         val coarseLocationPermission = ContextCompat.checkSelfPermission(
             this, android.Manifest.permission.ACCESS_COARSE_LOCATION
         )
-
         if (coarseLocationPermission != PackageManager.PERMISSION_GRANTED) {
             permissionsWeNeed.add(android.Manifest.permission.ACCESS_COARSE_LOCATION)
         }
@@ -89,6 +97,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         return true
     }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -99,6 +108,5 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         if (requestCode == 5)
             Toast.makeText(this, "یه اتفاقی رخ داد", Toast.LENGTH_SHORT).show()
     }
-
 
 }
